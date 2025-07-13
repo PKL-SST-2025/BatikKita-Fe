@@ -40,6 +40,10 @@
 
 [![Batik Kita][product-screenshot]](https://batik-kita-fe.vercel.app/)
 
+
+* [Website](https://batik-kita-fe.vercel.app/) <-- Click Here!
+* [Design](https://www.figma.com/design/Zi9mygn62TE31p1xAHyMEA/BatikKita?node-id=0-1&t=1BNUlVqacfTaHXUG-1) <-- Click Here!
+
 BatikKita adalah platform digital yang mendukung pelestarian budaya Indonesia melalui UMKM batik. Dibangun menggunakan SolidJS di frontend dan Actix Web di backend Rust, proyek ini dirancang dengan performa tinggi, tampilan modern, dan struktur modular yang skalabel.
 
 Tujuan utama proyek ini adalah:
