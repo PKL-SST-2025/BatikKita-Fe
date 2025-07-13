@@ -54,7 +54,6 @@ Tujuan utama proyek ini adalah:
 
 ### Daily Report
 
-* 1	Senin, 23 Juni	Analisis dan Perancangan sistem	Pengenalan pada lingkungan kerja serta mempelajari bahasa pemrograman Rust
 * 2	Selasa, 24 Juni	Pengembangan & Penulisan code	Mulai membuat projek coding dengan Solid-Js, Typescript dan Tailwind dan membuat design awal, install pakage dan setup server web 
 * 3	Rabu, 25 Juni	Pengembangan & Penulisan Kode	Melanjutkan code front end dan design projek saya, dengan menambahkan page baru dengan layout yang sesuai
 * 4	Kamis, 26 Juni	Debugging & Testing	Menyempurnakan code front end dan design website dengan menambahkan animasi, produk, logika cart, login register dengan local storage web saya, dan front end web jadi
