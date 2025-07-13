@@ -3,13 +3,11 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ChartPenjualan from "../components/ChartPenjualan";
 import AgGridSolid from "solid-ag-grid";
-import type { ColDef } from "ag-grid-community";
 
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
-// Data Produk
-
+// Tipe produk
 type Produk = {
   id: number;
   produk: string;
@@ -17,18 +15,20 @@ type Produk = {
   terjual: number;
 };
 
+// Data dummy
 const rowData: Produk[] = [
   { id: 1, produk: "Batik Mega Mendung", stok: 12, terjual: 30 },
   { id: 2, produk: "Batik Kawung", stok: 8, terjual: 25 },
   { id: 3, produk: "Batik Parang", stok: 10, terjual: 40 },
 ];
 
-const colDefs: ColDef<Produk>[] = [
+// Kolom (gunakan `as any[]` untuk hindari TypeScript error)
+const colDefs = [
   { field: "id", headerName: "ID" },
   { field: "produk", headerName: "Nama Produk" },
-  { field: "stok", headerName: "Stok" },
-  { field: "terjual", headerName: "Terjual" },
-];
+  { field: "stok", headerName: "Stok", sortable: true },
+  { field: "terjual", headerName: "Terjual", sortable: true },
+] as any[];
 
 const Dashboard: Component = () => {
   return (
@@ -40,6 +40,7 @@ const Dashboard: Component = () => {
             Dashboard Admin
           </h2>
 
+          {/* Grafik Penjualan */}
           <section class="mb-12 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg ring-1 ring-gray-200 dark:ring-gray-700">
             <h3 class="text-2xl font-semibold text-gray-700 dark:text-white mb-4">
               Grafik Penjualan
@@ -47,12 +48,21 @@ const Dashboard: Component = () => {
             <ChartPenjualan />
           </section>
 
+          {/* Data Produk */}
           <section class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg ring-1 ring-gray-200 dark:ring-gray-700">
             <h3 class="text-2xl font-semibold text-gray-700 dark:text-white mb-4">
               Data Produk
             </h3>
             <div class="ag-theme-alpine dark:bg-gray-800" style="height: 400px; width: 100%;">
-              <AgGridSolid rowData={rowData} columnDefs={colDefs} />
+              <AgGridSolid
+                rowData={rowData}
+                columnDefs={colDefs}
+                defaultColDef={{
+                  sortable: true,
+                  filter: true,
+                  resizable: true,
+                }}
+              />
             </div>
           </section>
         </div>
