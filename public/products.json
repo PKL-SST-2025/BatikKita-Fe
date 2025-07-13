@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "name": "Batik Mega Mendung",
+    "price": 150000,
+    "image": "/images/batik-1.jpg"
+  },
+  {
+    "id": 2,
+    "name": "Batik Kawung",
+    "price": 180000,
+    "image": "/images/batik-5.jpg"
+  },
+  {
+    "id": 3,
+    "name": "Batik Parang",
+    "price": 200000,
+    "image": "/images/batik-2.jpg"
+  },
+  {
+    "id": 4,
+    "name": "Batik Sidomukti",
+    "price": 175000,
+    "image": "/images/batik-4.jpg"
+  },
+  {
+    "id": 5,
+    "name": "Batik Truntum",
+    "price": 190000,
+    "image": "/images/batik-3.jpg"
+  },
+  {
+    "id": 6,
+    "name": "Batik Sekar Jagad",
+    "price": 210000,
+    "image": "/images/batik-6.jpg"
+  },
+  {
+    "id": 7,
+    "name": "Batik Ceplok",
+    "price": 160000,
+    "image": "/images/batik-7.jpg"
+  },
+  {
+    "id": 8,
+    "name": "Batik Lereng",
+    "price": 170000,
+    "image": "/images/batik-8.jpg"
+  },
+  {
+    "id": 9,
+    "name": "Batik Gringsing",
+    "price": 185000,
+    "image": "/images/batik-9.jpg"
+  },
+  {
+    "id": 10,
+    "name": "Batik Lasem",
+    "price": 220000,
+    "image": "/images/batik-10.jpg"
+  },
+    {
+    "id": 11,
+    "name": "Batik Sogan",
+    "price": 220000,
+    "image": "/images/batik-11.jpg"
+  },
+    {
+    "id": 12,
+    "name": "Batik Buketan",
+    "price": 220000,
+    "image": "/images/batik-12.jpg"
+  }
+]
