@@ -6,7 +6,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/PKL-SST-2025/BatikKita-Fe?tab=readme-ov-file">
-    <img src="images/logo.png" alt="Logo" width="100" height="100">
+    <img src="images/logo1.png" alt="Logo" width="100" height="100">
   </a>
 
   <h3 align="center">BATIK KITA</h3>
