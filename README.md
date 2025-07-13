@@ -8,8 +8,6 @@
   <a href="https://github.com/PKL-SST-2025/BatikKita-Fe?tab=readme-ov-file">
     <img src="images/logo1.png" alt="Logo" width="300" height="500">
   </a>
-
-  <h3 align="center">BATIK KITA</h3>
   
 </div>
 
