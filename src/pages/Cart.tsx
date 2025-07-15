@@ -2,7 +2,6 @@ import { createSignal, createEffect, Show, For } from "solid-js";
 import { A } from "@solidjs/router";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { useCart } from "../store/CartContext";
 
 // Type definitions
 interface CartItem {
@@ -32,9 +31,7 @@ const availableCoupons: CouponCode[] = [
 ];
 
 export default function Cart() {
-  // Use cart context if available, otherwise use local state
-  const cartContext = typeof useCart !== 'undefined' ? useCart() : null;
-  
+
   const [items, setItems] = createSignal<CartItem[]>([
     { 
       id: 1, 

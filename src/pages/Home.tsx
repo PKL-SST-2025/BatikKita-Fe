@@ -1,4 +1,4 @@
-import { createSignal, onMount, For, Show, createEffect } from "solid-js";
+import { createSignal, onMount, For, Show, } from "solid-js";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
