@@ -71,4 +71,61 @@
     "price": 220000,
     "image": "/images/batik-12.jpg"
   }
+  ,
+  {
+    "id": 13,
+    "name": "Batik Mega Mendung",
+    "description": "Batik motif Mega Mendung khas Cirebon, bahan katun premium.",
+    "category": "batik-tulis",
+    "price": 250000,
+    "originalPrice": 300000,
+    "discount": 15,
+    "image_url": "/images/MegaMendung.jpg",
+    "rating": 4.8,
+    "reviews": 120,
+    "sold": 210,
+    "isNew": true
+  },
+  {
+    "id": 14,
+    "name": "Batik Parang",
+    "description": "Motif Parang klasik, cocok untuk acara formal.",
+    "category": "batik-cap",
+    "price": 180000,
+    "originalPrice": 200000,
+    "discount": 10,
+    "image_url": "/images/batik-2.jpg",
+    "rating": 4.6,
+    "reviews": 80,
+    "sold": 150,
+    "isNew": false
+  },
+  {
+    "id": 15,
+    "name": "Batik Kawung",
+    "description": "Batik motif Kawung, simbol kemurnian dan keadilan.",
+    "category": "batik-print",
+    "price": 120000,
+    "originalPrice": 150000,
+    "discount": 20,
+    "image_url": "/images/batik-3.jpg",
+    "rating": 4.7,
+    "reviews": 60,
+    "sold": 90,
+    "isNew": true
+  },
+  {
+    "id": 16,
+    "name": "Gelang Batik",
+    "description": "Aksesoris gelang dengan motif batik modern.",
+    "category": "aksesoris",
+    "price": 50000,
+    "originalPrice": 70000,
+    "discount": 30,
+    "image_url": "/images/batik-4.jpg",
+    "rating": 4.9,
+    "reviews": 40,
+    "sold": 120,
+    "isNew": false
+  }
 ]
