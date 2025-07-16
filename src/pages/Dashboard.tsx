@@ -211,26 +211,15 @@ const Dashboard: Component = () => {
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Chart Section - Takes 2 columns */}
+            {/* Chart Section - Menggunakan komponen ChartPenjualan */}
             <div class="lg:col-span-2">
-              <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-                <div class="flex items-center justify-between mb-6">
-                  <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
-                    Grafik Penjualan
-                  </h2>
-                  <div class="flex items-center gap-4">
-                    <div class="flex items-center gap-2">
-                      <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
-                      <span class="text-sm text-gray-600 dark:text-gray-400">Penjualan</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                      <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
-                      <span class="text-sm text-gray-600 dark:text-gray-400">Target</span>
-                    </div>
-                  </div>
-                </div>
-                <ChartPenjualan />
-              </div>
+              <ChartPenjualan 
+                period={selectedPeriod() as "week" | "month" | "year"}
+                onDataClick={(data) => {
+                  console.log(`Clicked on ${data.month}: Sales ${data.sales}, Target ${data.target}`);
+
+                }}
+              />
             </div>
 
             {/* Recent Orders - Takes 1 column */}
