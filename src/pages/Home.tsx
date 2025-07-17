@@ -220,7 +220,7 @@ export default function Home() {
             </div>
 
             {/* Mouse Scroll Indicator */}
-            <div class="absolute mt-60 left-1/2 -translate-x-1/2">
+            <div class="absolute mt-40 left-1/2 -translate-x-1/2">
               <div class="w-8 h-11 rounded-full border-2 border-white/50 p-1 relative">
                 <div 
                   class="w-1.5 h-2.5 bg-white rounded-full mx-auto animate-scroll-wheel"
