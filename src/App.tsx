@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
+import Favorites from "./pages/Favorites";
 
 import Notifications from "./pages/Notifications";
 import Security from "./pages/Security";
@@ -22,6 +23,7 @@ import SplashLogo from "./components/SplashLogo";
 import ProtectedRoute from "./components/ProtectedRoute"; 
 import { CartProvider } from "./store/CartContext";
 import { AuthProvider } from "./store/AuthContext";
+import { FavoriteProvider } from "./store/FavoriteContext";
 
 import "./tailwind.css";
 
@@ -34,7 +36,8 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <CartProvider>
+      <FavoriteProvider>
+        <CartProvider>
         {showSplash() ? (
           <SplashLogo />
         ) : (
@@ -49,6 +52,16 @@ export default function App() {
             <Route path="/forgot-password" component={ForgotPassword} />
             <Route path="/about" component={About} />
             <Route path="/contact" component={Contact} />
+            
+            {/* Protected Favorites route */}
+            <Route
+              path="/favorites"
+              component={() => (
+                <ProtectedRoute>
+                  <Favorites />
+                </ProtectedRoute>
+              )}
+            />
             
             {/* Protected user routes */}
             <Route
@@ -102,6 +115,7 @@ export default function App() {
           </Router>
         )}
       </CartProvider>
+      </FavoriteProvider>
     </AuthProvider>
   );
 }

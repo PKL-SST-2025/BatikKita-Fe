@@ -384,7 +384,7 @@ export default function Appearance() {
                             <div class="flex items-center gap-2">
                               <Show when={showAvatars()} fallback={<div class="w-6 h-6 bg-white/20 rounded-full"></div>}>
                                 <div class="w-6 h-6 bg-white/30 rounded-full flex items-center justify-center text-xs">
-                                  {currentUser.name.charAt(0)}
+                                  {currentUser.first_name.charAt(0)}
                                 </div>
                               </Show>
                               <span class={`${fontSize() === 'small' ? 'text-sm' : fontSize() === 'large' ? 'text-lg' : 'text-base'} font-medium`}>

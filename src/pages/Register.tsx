@@ -27,7 +27,18 @@ export default function Register() {
     e.preventDefault();
     setPageLeaving(true);
     setTimeout(async () => {
-      await register(name(), email(), password());
+      // Split name into first and last name
+      const nameParts = name().trim().split(' ');
+      const first_name = nameParts[0] || '';
+      const last_name = nameParts.slice(1).join(' ') || '';
+      
+      await register({
+        username: email(), // Use email as username for simplicity
+        email: email(),
+        password: password(),
+        first_name,
+        last_name
+      });
       navigate("/dashboard");
     }, 500);
   };

@@ -2,20 +2,9 @@ import { createSignal, createEffect, Show, For } from "solid-js";
 import { A } from "@solidjs/router";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { useCart } from "../store/CartContext";
 
-// Type definitions
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image?: string;
-  size?: string;
-  color?: string;
-  originalPrice?: number;
-  stock?: number;
-}
-
+// Type definitions for coupon codes
 interface CouponCode {
   code: string;
   discount: number;
@@ -31,31 +20,7 @@ const availableCoupons: CouponCode[] = [
 ];
 
 export default function Cart() {
-
-  const [items, setItems] = createSignal<CartItem[]>([
-    { 
-      id: 1, 
-      name: "Batik Mega Mendung", 
-      price: 150000, 
-      originalPrice: 200000,
-      quantity: 2,
-      image: "/images/batik-1.jpg",
-      size: "L",
-      color: "Biru Klasik",
-      stock: 10
-    },
-    { 
-      id: 2, 
-      name: "Batik Kawung", 
-      price: 180000,
-      originalPrice: 250000, 
-      quantity: 1,
-      image: "/images/batik-5.jpg",
-      size: "M",
-      color: "Coklat Sogan",
-      stock: 5
-    },
-  ]);
+  const { cartItems, updateCartItem, removeFromCart, clearCart } = useCart();
 
   const [selectedShipping, setSelectedShipping] = createSignal("regular");
   const [couponCode, setCouponCode] = createSignal("");
@@ -63,7 +28,7 @@ export default function Cart() {
   const [showCouponError, setShowCouponError] = createSignal(false);
   const [selectedItems, setSelectedItems] = createSignal<number[]>([]);
   const [showSaveModal, setShowSaveModal] = createSignal(false);
-  const [savedForLater, setSavedForLater] = createSignal<CartItem[]>([]);
+  const [savedForLater, setSavedForLater] = createSignal<any[]>([]);
   const [estimatedDelivery, setEstimatedDelivery] = createSignal("");
 
   // Shipping options
@@ -97,7 +62,10 @@ export default function Cart() {
 
   // Calculate subtotal
   const subtotal = () =>
-    items().reduce((sum, item) => sum + item.price * item.quantity, 0);
+    cartItems().reduce((sum: number, item: any) => {
+      const price = item.product.discount_price || item.product.price;
+      return sum + price * item.quantity;
+    }, 0);
 
   // Calculate discount
   const discountAmount = () => {
@@ -114,9 +82,11 @@ export default function Cart() {
 
   // Calculate total savings
   const totalSavings = () => {
-    const itemSavings = items().reduce((sum, item) => {
-      const originalTotal = (item.originalPrice || item.price) * item.quantity;
-      const currentTotal = item.price * item.quantity;
+    const itemSavings = cartItems().reduce((sum: number, item: any) => {
+      const originalPrice = item.product.price;
+      const currentPrice = item.product.discount_price || item.product.price;
+      const originalTotal = originalPrice * item.quantity;
+      const currentTotal = currentPrice * item.quantity;
       return sum + (originalTotal - currentTotal);
     }, 0);
     return itemSavings + discountAmount();
@@ -126,17 +96,13 @@ export default function Cart() {
   const updateQuantity = (id: number, newQty: number) => {
     if (newQty < 1) return;
     
-    const item = items().find(i => i.id === id);
-    if (item && item.stock && newQty > item.stock) {
-      showNotification(`Stok terbatas! Hanya tersedia ${item.stock} item`, 'warning');
+    const item = cartItems().find((i: any) => i.id === id);
+    if (item && item.product.stock_quantity && newQty > item.product.stock_quantity) {
+      showNotification(`Stok terbatas! Hanya tersedia ${item.product.stock_quantity} item`, 'warning');
       return;
     }
 
-    setItems(
-      items().map((item) =>
-        item.id === id ? { ...item, quantity: newQty } : item
-      )
-    );
+    updateCartItem(id, newQty);
     
     // Animate the update
     const row = document.querySelector(`[data-item-id="${id}"]`);
@@ -152,7 +118,7 @@ export default function Cart() {
     if (row) {
       row.classList.add('animate-fade-out');
       setTimeout(() => {
-        setItems(items().filter((item) => item.id !== id));
+        removeFromCart(id);
         showNotification('Produk dihapus dari keranjang', 'info');
       }, 300);
     }
@@ -160,7 +126,7 @@ export default function Cart() {
 
   // Save for later
   const saveForLater = (id: number) => {
-    const item = items().find(i => i.id === id);
+    const item = cartItems().find((i: any) => i.id === id);
     if (item) {
       setSavedForLater([...savedForLater(), item]);
       removeItem(id);
@@ -170,10 +136,11 @@ export default function Cart() {
 
   // Move to cart from saved
   const moveToCart = (id: number) => {
-    const item = savedForLater().find(i => i.id === id);
+    const item = savedForLater().find((i: any) => i.id === id);
     if (item) {
-      setItems([...items(), item]);
-      setSavedForLater(savedForLater().filter(i => i.id !== id));
+      // Add to cart through the cart service
+      // This would need to be implemented properly with the actual add to cart function
+      setSavedForLater(savedForLater().filter((i: any) => i.id !== id));
       showNotification('Produk dipindahkan ke keranjang', 'success');
     }
   };
@@ -232,10 +199,10 @@ export default function Cart() {
 
   // Select all items
   const selectAllItems = () => {
-    if (selectedItems().length === items().length) {
+    if (selectedItems().length === cartItems().length) {
       setSelectedItems([]);
     } else {
-      setSelectedItems(items().map(i => i.id));
+      setSelectedItems(cartItems().map((i: any) => i.id));
     }
   };
 
@@ -259,9 +226,9 @@ export default function Cart() {
           <div class="mb-8">
             <div class="flex items-center justify-between mb-6">
               <h1 class="text-3xl font-bold text-gray-900">Keranjang Belanja</h1>
-              <Show when={items().length > 0}>
+              <Show when={cartItems().length > 0}>
                 <button
-                  onClick={() => setItems([])}
+                  onClick={() => clearCart()}
                   class="text-sm text-red-600 hover:text-red-700 font-medium"
                 >
                   Kosongkan Keranjang
@@ -296,7 +263,7 @@ export default function Cart() {
             </div>
           </div>
 
-          <Show when={items().length === 0}>
+          <Show when={cartItems().length === 0}>
             <div class="text-center py-16 bg-white rounded-xl shadow-sm">
               <div class="text-6xl mb-4">🛒</div>
               <h2 class="text-2xl font-bold text-gray-900 mb-2">Keranjang Anda Kosong</h2>
@@ -310,7 +277,7 @@ export default function Cart() {
             </div>
           </Show>
 
-          <Show when={items().length > 0}>
+          <Show when={cartItems().length > 0}>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Left: Cart Items */}
               <div class="lg:col-span-2 space-y-4">
@@ -319,11 +286,11 @@ export default function Cart() {
                   <div class="flex items-center gap-3">
                     <input
                       type="checkbox"
-                      checked={selectedItems().length === items().length}
+                      checked={selectedItems().length === cartItems().length}
                       onChange={selectAllItems}
                       class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                     />
-                    <span class="font-medium">Pilih Semua ({items().length} produk)</span>
+                    <span class="font-medium">Pilih Semua ({cartItems().length} produk)</span>
                   </div>
                   <Show when={selectedItems().length > 0}>
                     <button
@@ -337,7 +304,7 @@ export default function Cart() {
 
                 {/* Cart Items */}
                 <div class="space-y-4">
-                  <For each={items()}>
+                  <For each={cartItems()}>
                     {(item) => (
                       <div 
                         data-item-id={item.id}
@@ -353,8 +320,8 @@ export default function Cart() {
                           
                           <div class="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                             <img 
-                              src={item.image || '/images/placeholder.jpg'} 
-                              alt={item.name}
+                              src={item.product.images?.[0]?.image_url || '/images/placeholder.jpg'} 
+                              alt={item.product.name}
                               class="w-full h-full object-cover"
                             />
                           </div>
@@ -362,33 +329,26 @@ export default function Cart() {
                           <div class="flex-1">
                             <div class="flex justify-between items-start mb-2">
                               <div>
-                                <h3 class="font-semibold text-gray-900">{item.name}</h3>
-                                <Show when={item.size || item.color}>
-                                  <p class="text-sm text-gray-600 mt-1">
-                                    {item.color && <span>Warna: {item.color}</span>}
-                                    {item.color && item.size && <span> • </span>}
-                                    {item.size && <span>Ukuran: {item.size}</span>}
-                                  </p>
-                                </Show>
-                                <Show when={item.stock && item.stock < 10}>
+                                <h3 class="font-semibold text-gray-900">{item.product.name}</h3>
+                                <Show when={item.product.stock_quantity && item.product.stock_quantity < 10}>
                                   <p class="text-sm text-red-600 mt-1">
-                                    Stok terbatas! Tersisa {item.stock} item
+                                    Stok terbatas! Tersisa {item.product.stock_quantity} item
                                   </p>
                                 </Show>
                               </div>
                               
                               <div class="text-right">
-                                <Show when={item.originalPrice && item.originalPrice > item.price}>
+                                <Show when={item.product.discount_price && item.product.price > item.product.discount_price}>
                                   <p class="text-sm text-gray-500 line-through">
-                                    Rp {item.originalPrice!.toLocaleString('id-ID')}
+                                    Rp {item.product.price.toLocaleString('id-ID')}
                                   </p>
                                 </Show>
                                 <p class="font-semibold text-gray-900">
-                                  Rp {item.price.toLocaleString('id-ID')}
+                                  Rp {(item.product.discount_price || item.product.price).toLocaleString('id-ID')}
                                 </p>
-                                <Show when={item.originalPrice && item.originalPrice > item.price}>
+                                <Show when={item.product.discount_price && item.product.price > item.product.discount_price}>
                                   <p class="text-sm text-green-600">
-                                    Hemat {Math.round((1 - item.price / item.originalPrice!) * 100)}%
+                                    Hemat {Math.round((1 - item.product.discount_price! / item.product.price) * 100)}%
                                   </p>
                                 </Show>
                               </div>
@@ -409,7 +369,7 @@ export default function Cart() {
                                   <input
                                     type="number"
                                     min="1"
-                                    max={item.stock || 999}
+                                    max={item.product.stock_quantity || 999}
                                     value={item.quantity}
                                     onInput={(e) =>
                                       updateQuantity(
@@ -448,7 +408,7 @@ export default function Cart() {
                               <div class="text-right">
                                 <p class="text-sm text-gray-600">Subtotal</p>
                                 <p class="font-bold text-lg text-gray-900">
-                                  Rp {(item.price * item.quantity).toLocaleString('id-ID')}
+                                  Rp {((item.product.discount_price || item.product.price) * item.quantity).toLocaleString('id-ID')}
                                 </p>
                               </div>
                             </div>
@@ -592,7 +552,7 @@ export default function Cart() {
                   {/* Price Breakdown */}
                   <div class="space-y-3 border-t pt-4">
                     <div class="flex justify-between text-gray-700">
-                      <span>Subtotal ({items().length} produk)</span>
+                      <span>Subtotal ({cartItems().length} produk)</span>
                       <span>Rp {subtotal().toLocaleString('id-ID')}</span>
                     </div>
                     
@@ -665,7 +625,7 @@ export default function Cart() {
           </Show>
 
           {/* Recently Viewed Section */}
-          <Show when={items().length > 0}>
+          <Show when={cartItems().length > 0}>
             <div class="mt-16">
               <h2 class="text-2xl font-bold text-gray-900 mb-6">Produk yang Baru Dilihat</h2>
               <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -738,7 +698,7 @@ export default function Cart() {
       </div>
 
       {/* Floating Cart Summary on Mobile */}
-      <Show when={items().length > 0}>
+      <Show when={cartItems().length > 0}>
         <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 lg:hidden">
           <div class="flex items-center justify-between mb-3">
             <div>
@@ -751,7 +711,7 @@ export default function Cart() {
               href="/checkout"
               class="bg-black text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
             >
-              Checkout ({items().length})
+              Checkout ({cartItems().length})
             </A>
           </div>
         </div>

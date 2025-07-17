@@ -1,5 +1,7 @@
 import { createSignal, onCleanup, onMount, Show } from "solid-js";
 import { useAuth } from "../store/AuthContext";
+import { useFavorites } from "../store/FavoriteContext";
+import { useCart } from "../store/CartContext";
 
 export default function Navbar() {
   const [showNavbar, setShowNavbar] = createSignal(true);
@@ -7,6 +9,8 @@ export default function Navbar() {
   const [showNotifications, setShowNotifications] = createSignal(false);
   const [notificationCount] = createSignal(3); // Removed unused setter
   const { user } = useAuth();
+  const { favoriteCount } = useFavorites();
+  const { getCartCount } = useCart();
   let lastScrollY = 0;
 
   const handleScroll = () => {
@@ -40,6 +44,7 @@ export default function Navbar() {
   const menuItems = [
     { name: "Beranda", href: "/" },
     { name: "Produk", href: "/produk" },
+    ...(user() ? [{ name: "Favorit", href: "/favorites" }] : []),
     { name: "Tentang", href: "/about" },
     { name: "Kontak", href: "/contact" },
     ...(user()?.role === "admin" ? [{ name: "Dashboard", href: "/dashboard" }] : [])
@@ -127,10 +132,37 @@ export default function Navbar() {
 
         {/* Icon + Toggle */}
         <div class="flex items-center space-x-3">
+          {/* Favorites - Only show when logged in */}
+          <Show when={user()}>
+            <a
+              href="/favorites"
+              class="relative text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 transition"
+            >
+              <svg
+                class="w-5 h-5 md:w-6 md:h-6"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
+              </svg>
+              <Show when={favoriteCount() > 0}>
+                <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                  {favoriteCount()}
+                </span>
+              </Show>
+            </a>
+          </Show>
+
           {/* Cart */}
           <a
             href="/cart"
-            class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition"
+            class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition relative"
           >
             <svg
               class="w-5 h-5 md:w-6 md:h-6"
@@ -145,6 +177,11 @@ export default function Navbar() {
                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 7H17M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z"
               />
             </svg>
+            <Show when={getCartCount() > 0}>
+              <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {getCartCount()}
+              </span>
+            </Show>
           </a>
 
           {/* Notifications - Only show when logged in */}

@@ -3,18 +3,10 @@ import { useParams } from "@solidjs/router";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useCart } from "../store/CartContext";
+import { useFavorites } from "../store/FavoriteContext";
+import { useAuth } from "../store/AuthContext";
 
 // Type definitions
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  size?: string;
-  color?: string;
-  image?: string;
-}
-
 interface Product {
   id: number;
   name: string;
@@ -160,13 +152,15 @@ export default function ProductDetail() {
   const [showZoom, setShowZoom] = createSignal(false);
   const [zoomPosition, setZoomPosition] = createSignal({ x: 0, y: 0 });
   const [showSizeGuide, setShowSizeGuide] = createSignal(false);
-  const [isWishlisted, setIsWishlisted] = createSignal(false);
   const [showShareMenu, setShowShareMenu] = createSignal(false);
   const [currentImageIndex, setCurrentImageIndex] = createSignal(0);
+  const [showLoginPrompt, setShowLoginPrompt] = createSignal(false);
   
   const { id } = useParams();
   const product = products.find((p) => p.id === parseInt(id));
   const { addToCart } = useCart();
+  const { toggleFavorite, isFavorite } = useFavorites();
+  const { user } = useAuth();
 
   const allImages = product ? [product.image, ...product.additionalImages] : [];
   const [selectedImage, setSelectedImage] = createSignal(allImages[0] || "");
@@ -210,7 +204,7 @@ export default function ProductDetail() {
     );
   }
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!selectedSize()) {
       alert("Silakan pilih ukuran terlebih dahulu");
       return;
@@ -220,25 +214,21 @@ export default function ProductDetail() {
       return;
     }
     
-    addToCart({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: quantity(),
-      size: selectedSize(),
-      color: selectedColor(),
-      image: product.image
-    } as CartItem);
-    
-    // Show success animation
-    const button = document.querySelector('.add-to-cart-btn');
-    if (button) {
-      button.classList.add('animate-bounce');
-      setTimeout(() => button.classList.remove('animate-bounce'), 1000);
+    try {
+      await addToCart(product.id, quantity());
+      
+      // Show success animation
+      const button = document.querySelector('.add-to-cart-btn');
+      if (button) {
+        button.classList.add('animate-bounce');
+        setTimeout(() => button.classList.remove('animate-bounce'), 1000);
+      }
+      
+      // Show notification
+      showNotification("Produk berhasil ditambahkan ke keranjang! 🛒");
+    } catch (error: any) {
+      alert(error.message || "Gagal menambahkan ke keranjang");
     }
-    
-    // Show notification
-    showNotification("Produk berhasil ditambahkan ke keranjang! 🛒");
   };
 
   const showNotification = (message: string) => {
@@ -269,6 +259,26 @@ export default function ProductDetail() {
       window.open(shareUrls[platform] as string, '_blank');
     }
     setShowShareMenu(false);
+  };
+
+  const handleToggleFavorite = async () => {
+    if (!user()) {
+      setShowLoginPrompt(true);
+      return;
+    }
+
+    if (!product) return;
+
+    try {
+      const result = await toggleFavorite(product.id);
+      showNotification(result.message);
+    } catch (error: any) {
+      if (error.message.includes("login")) {
+        setShowLoginPrompt(true);
+      } else {
+        alert(error.message || "Gagal mengupdate favorit");
+      }
+    }
   };
 
   return (
@@ -510,13 +520,13 @@ export default function ProductDetail() {
                   </button>
                   
                   <button
-                    onClick={() => setIsWishlisted(!isWishlisted())}
+                    onClick={handleToggleFavorite}
                     class="px-6 border-2 border-gray-300 rounded-lg hover:border-gray-400 transition-all duration-300"
                     classList={{
-                      "text-red-500 border-red-500": isWishlisted(),
+                      "text-red-500 border-red-500": product && isFavorite(product.id),
                     }}
                   >
-                    <svg class="w-6 h-6" fill={isWishlisted() ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-6 h-6" fill={product && isFavorite(product.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                     </svg>
                   </button>
@@ -935,6 +945,35 @@ export default function ProductDetail() {
                   <li>• Jika hasil ukur berada di antara dua ukuran, pilih ukuran yang lebih besar</li>
                   <li>• Untuk model loose fit, pertimbangkan naik 1 ukuran</li>
                 </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Show>
+
+      {/* Login Prompt Modal */}
+      <Show when={showLoginPrompt()}>
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div class="bg-white rounded-xl max-w-md w-full p-6">
+            <div class="text-center">
+              <div class="text-4xl mb-4">❤️</div>
+              <h3 class="text-xl font-bold mb-2">Login Diperlukan</h3>
+              <p class="text-gray-600 mb-6">
+                Silakan login terlebih dahulu untuk menambahkan produk ke favorit Anda.
+              </p>
+              <div class="flex gap-3">
+                <button
+                  onClick={() => setShowLoginPrompt(false)}
+                  class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Batal
+                </button>
+                <a
+                  href="/login"
+                  class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-center"
+                >
+                  Login
+                </a>
               </div>
             </div>
           </div>

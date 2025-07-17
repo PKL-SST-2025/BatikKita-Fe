@@ -2,11 +2,23 @@ import { createResource, For, Show, createSignal, onMount } from "solid-js";
 import { A } from "@solidjs/router";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { useFavorites } from "../store/FavoriteContext";
+import { useAuth } from "../store/AuthContext";
+import { useCart } from "../store/CartContext";
+import { ProductService } from "../services/productService";
 
 const fetchProducts = async () => {
-  const res = await fetch(import.meta.env.VITE_API_URL + "/produk");
-  if (!res.ok) throw new Error("Gagal mengambil data produk");
-  return res.json();
+  try {
+    const response = await ProductService.getProducts();
+    if (response.success) {
+      return response.data;
+    } else {
+      throw new Error(response.message || "Gagal mengambil data produk");
+    }
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    throw new Error("Gagal mengambil data produk");
+  }
 };
 
 export default function Produk() {
@@ -17,13 +29,18 @@ export default function Produk() {
   const [searchQuery, setSearchQuery] = createSignal("");
   const [viewMode, setViewMode] = createSignal<"grid" | "list">("grid");
   const [animateHero, setAnimateHero] = createSignal(false);
+  const [showLoginPrompt, setShowLoginPrompt] = createSignal(false);
+
+  const { toggleFavorite, isFavorite } = useFavorites();
+  const { user } = useAuth();
+  const { addToCart, loading: cartLoading } = useCart();
 
   const categories = [
     { value: "all", label: "Semua Produk", icon: "🎨" },
-    { value: "batik-tulis", label: "Batik Tulis", icon: "✍️" },
-    { value: "batik-cap", label: "Batik Cap", icon: "🎯" },
-    { value: "batik-print", label: "Batik Print", icon: "🖨️" },
-    { value: "aksesoris", label: "Aksesoris", icon: "💍" }
+    { value: "Traditional", label: "Traditional", icon: "✍️" },
+    { value: "Classic", label: "Classic", icon: "🎯" },
+    { value: "Modern", label: "Modern", icon: "🖨️" },
+    { value: "Premium", label: "Premium", icon: "💍" }
   ];
 
   const sortOptions = [
@@ -37,11 +54,39 @@ export default function Produk() {
     setTimeout(() => setAnimateHero(true), 100);
   });
 
+  // Handle favorite toggle
+  const handleToggleFavorite = async (product: any) => {
+    if (!user()) {
+      setShowLoginPrompt(true);
+      return;
+    }
+
+    try {
+      await toggleFavorite(product.id);
+    } catch (error: any) {
+      if (error.message.includes("login")) {
+        setShowLoginPrompt(true);
+      } else {
+        alert(error.message || "Gagal mengupdate favorit");
+      }
+    }
+  };
+
+  const handleAddToCart = async (product: any) => {
+    try {
+      await addToCart(product.id, 1);
+      alert("Produk berhasil ditambahkan ke keranjang!");
+    } catch (error: any) {
+      alert(error.message || "Gagal menambahkan ke keranjang");
+    }
+  };
+
   // Filter and sort products
   const filterAndSortProducts = () => {
-    if (!products()) return;
+    const productsData = products();
+    if (!productsData) return;
     
-    let filtered = [...products()];
+    let filtered = [...productsData];
     
     // Apply search filter
     if (searchQuery()) {
@@ -64,7 +109,7 @@ export default function Produk() {
         filtered.sort((a, b) => b.price - a.price);
         break;
       case "popular":
-        filtered.sort((a, b) => (b.sold || 0) - (a.sold || 0));
+        filtered.sort((a, b) => (b.average_rating || 0) - (a.average_rating || 0));
         break;
       default:
         filtered.sort((a, b) => b.id - a.id);
@@ -268,7 +313,7 @@ export default function Produk() {
                   <div class="group bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-2">
                     <div class="relative aspect-square overflow-hidden">
                       <img
-                        src={product.image_url}
+                        src={product.images?.[0]?.image_url || '/images/batik-placeholder.jpg'}
                         alt={product.name}
                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         loading="lazy"
@@ -286,9 +331,9 @@ export default function Produk() {
                       </div>
                       {/* Badges */}
                       <div class="absolute top-3 left-3 flex gap-2">
-                        <Show when={product.discount}>
+                        <Show when={product.discount_price && product.discount_price < product.price}>
                           <span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                            -{product.discount}%
+                            -{Math.round(((product.price - product.discount_price) / product.price) * 100)}%
                           </span>
                         </Show>
                         <Show when={product.isNew}>
@@ -298,8 +343,14 @@ export default function Produk() {
                         </Show>
                       </div>
                       {/* Wishlist Button */}
-                      <button class="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white hover:scale-110">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <button 
+                        onClick={() => handleToggleFavorite(product)}
+                        class="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:scale-110"
+                        classList={{
+                          "!opacity-100 bg-red-50 text-red-500": isFavorite(product.id.toString()),
+                        }}
+                      >
+                        <svg class="w-5 h-5" fill={isFavorite(product.id.toString()) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
                       </button>
@@ -313,19 +364,19 @@ export default function Produk() {
                       </p>
                       <div class="flex items-center justify-between">
                         <div>
-                          <Show when={product.originalPrice}>
+                          <Show when={product.discount_price}>
                             <p class="text-sm text-gray-500 line-through">
-                              Rp {product.originalPrice.toLocaleString()}
+                              Rp {product.price.toLocaleString()}
                             </p>
                           </Show>
                           <p class="text-xl font-bold text-purple-600 dark:text-purple-400">
-                            Rp {product.price.toLocaleString()}
+                            Rp {(product.discount_price || product.price).toLocaleString()}
                           </p>
                         </div>
                         <div class="flex items-center gap-1">
                           <span class="text-yellow-400">⭐</span>
                           <span class="text-sm text-gray-600 dark:text-gray-400">
-                            {product.rating || "4.5"}
+                            {product.average_rating || "4.5"}
                           </span>
                         </div>
                       </div>
@@ -345,14 +396,14 @@ export default function Produk() {
                     <div class="flex flex-col md:flex-row">
                       <div class="relative w-full md:w-48 h-48 md:h-auto overflow-hidden">
                         <img
-                          src={product.image_url}
+                          src={product.images?.[0]?.image_url || '/images/batik-placeholder.jpg'}
                           alt={product.name}
                           class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                           loading="lazy"
                         />
-                        <Show when={product.discount}>
+                        <Show when={product.discount_price && product.discount_price < product.price}>
                           <span class="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                            -{product.discount}%
+                            -{Math.round(((product.price - product.discount_price) / product.price) * 100)}%
                           </span>
                         </Show>
                       </div>
@@ -389,10 +440,26 @@ export default function Produk() {
                               </p>
                             </div>
                             <div class="flex gap-2">
-                              <button class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                                <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <button 
+                                onClick={() => handleToggleFavorite(product)}
+                                class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                classList={{
+                                  "bg-red-50 text-red-500 hover:bg-red-100": isFavorite(product.id.toString()),
+                                }}
+                              >
+                                <svg class="w-5 h-5" fill={isFavorite(product.id.toString()) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                 </svg>
+                              </button>
+                              <button
+                                onClick={() => handleAddToCart(product)}
+                                class="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-all duration-300 flex items-center gap-2"
+                                disabled={cartLoading()}
+                              >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 7H17M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
+                                </svg>
+                                Keranjang
                               </button>
                               <A
                                 href={`/produk/${product.id}`}
@@ -412,6 +479,35 @@ export default function Produk() {
           </Show>
         </Show>
       </div>
+
+      {/* Login Prompt Modal */}
+      <Show when={showLoginPrompt()}>
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div class="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full p-6">
+            <div class="text-center">
+              <div class="text-4xl mb-4">❤️</div>
+              <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Login Diperlukan</h3>
+              <p class="text-gray-600 dark:text-gray-400 mb-6">
+                Silakan login terlebih dahulu untuk menambahkan produk ke favorit Anda.
+              </p>
+              <div class="flex gap-3">
+                <button
+                  onClick={() => setShowLoginPrompt(false)}
+                  class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  Batal
+                </button>
+                <A
+                  href="/login"
+                  class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-center"
+                >
+                  Login
+                </A>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Show>
 
       <Footer />
 

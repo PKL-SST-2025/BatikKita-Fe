@@ -101,7 +101,7 @@ export default function Profile() {
                 <div class="relative group">
                   <Show when={profilePhoto()} fallback={
                     <div class="w-32 h-32 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white text-4xl shadow-2xl ring-4 ring-white/20 border border-white/30">
-                      {currentUser.name.charAt(0).toUpperCase()}
+                      {currentUser.first_name.charAt(0).toUpperCase()}
                     </div>
                   }>
                     <img
@@ -127,7 +127,7 @@ export default function Profile() {
                 </div>
                 
                 <div class="text-white">
-                  <h1 class="text-4xl font-bold mb-2">{currentUser.name}</h1>
+                  <h1 class="text-4xl font-bold mb-2">{currentUser.first_name} {currentUser.last_name}</h1>
                   <p class="text-slate-200 flex items-center gap-2">
                     <span>✉️</span> {currentUser.email}
                   </p>

@@ -5,7 +5,15 @@ import solid from "vite-plugin-solid";
 export default defineConfig({
   plugins: [solid()],
   server: {
-    port: 3000
+    port: 5173,
+    host: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
   },
   build: {
     target: "esnext",

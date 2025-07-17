@@ -1,83 +1,122 @@
 import { createSignal, createContext, useContext } from "solid-js";
 import type { JSX } from "solid-js/jsx-runtime";
-
-export type User = {
-  id: number;
-  name: string;
-  email: string;
-  role: "admin" | "user"; 
-};
+import { AuthService } from "../services/authService";
+import type { User } from "../services/authService";
+import { setAuthToken, removeAuthToken, getAuthToken } from "../utils/api";
 
 export interface AuthContextValue {
   user: () => User | null;
-  login: (email: string, password: string, role?: "admin" | "user") => Promise<void>;
-  register: (name: string, email: string, password: string, role?: "admin" | "user") => Promise<void>;
+  isAuthenticated: () => boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (userData: {
+    username: string;
+    email: string;
+    password: string;
+    first_name: string;
+    last_name: string;
+    phone?: string;
+  }) => Promise<void>;
   logout: () => void;
+  loading: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider(props: { children: JSX.Element }) {
   const [user, setUser] = createSignal<User | null>(null);
+  const [loading, setLoading] = createSignal(false);
 
-  // Pulihkan user dari localStorage saat aplikasi dimulai
-  const stored = localStorage.getItem("authUser");
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored) as User;
-      setUser(parsed);
-    } catch (err) {
-      console.error("Gagal memuat user dari localStorage", err);
-    }
-  }
-
-const login = async (email: string, password: string) => {
-  try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    if (!res.ok) {
-      alert("Email atau password salah");
-      return;
-    }
-    const user = await res.json();
-    setUser(user);
-    localStorage.setItem("authUser", JSON.stringify(user));
-  } catch (err) {
-    alert("Gagal login ke server");
-    console.error(err);
-  }
-};
-
-  const register = async (name: string, email: string, password: string, role: "admin" | "user" = "user") => {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, role }),
-      });
-      if (!res.ok) {
-        alert("Registrasi gagal");
-        return;
+  // Initialize user from stored token
+  const initializeAuth = async () => {
+    const token = getAuthToken();
+    if (token) {
+      try {
+        setLoading(true);
+        const response = await AuthService.getProfile();
+        if (response.success && response.data) {
+          setUser(response.data);
+        } else {
+          removeAuthToken();
+        }
+      } catch (error) {
+        console.error("Failed to initialize auth:", error);
+        removeAuthToken();
+      } finally {
+        setLoading(false);
       }
-      const user = await res.json();
-      setUser(user);
-      localStorage.setItem("authUser", JSON.stringify(user));
-    } catch (err) {
-      alert("Gagal register ke server");
-      console.error(err);
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("authUser");
+  // Initialize auth on app start
+  initializeAuth();
+
+  const login = async (email: string, password: string) => {
+    try {
+      setLoading(true);
+      const response = await AuthService.login({ email, password });
+      
+      if (response.success && response.data) {
+        setAuthToken(response.data.token);
+        setUser(response.data.user);
+      } else {
+        throw new Error(response.message || "Login failed");
+      }
+    } catch (error: any) {
+      console.error("Login error:", error);
+      throw new Error(error.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const register = async (userData: {
+    username: string;
+    email: string;
+    password: string;
+    first_name: string;
+    last_name: string;
+    phone?: string;
+  }) => {
+    try {
+      setLoading(true);
+      const response = await AuthService.register(userData);
+      
+      if (response.success && response.data) {
+        setAuthToken(response.data.token);
+        setUser(response.data.user);
+      } else {
+        throw new Error(response.message || "Registration failed");
+      }
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      throw new Error(error.message || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await AuthService.logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setUser(null);
+      removeAuthToken();
+    }
+  };
+
+  const isAuthenticated = () => !!user();
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      isAuthenticated, 
+      login, 
+      register, 
+      logout, 
+      loading 
+    }}>
       {props.children}
     </AuthContext.Provider>
   );
@@ -85,6 +124,6 @@ const login = async (email: string, password: string) => {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth harus digunakan dalam <AuthProvider>");
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 }

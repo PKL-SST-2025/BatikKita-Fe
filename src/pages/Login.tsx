@@ -5,10 +5,12 @@ import { useNavigate } from "@solidjs/router";
 export default function Login() {
   const [email, setEmail] = createSignal("");
   const [password, setPassword] = createSignal("");
-  const [role, setRole] = createSignal<"admin" | "user">("user"); // ✅ Typed union
   const [theme, setTheme] = createSignal("light");
   const [pageLeaving, setPageLeaving] = createSignal(false);
-  const { login } = useAuth();
+  const [error, setError] = createSignal("");
+  const [isLoading, setIsLoading] = createSignal(false);
+  
+  const { login, loading } = useAuth();
   const navigate = useNavigate();
 
   const toggleTheme = () => {
@@ -25,8 +27,17 @@ export default function Login() {
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
-    await login(email(), password(), role());
-    navigate("/dashboard");
+    setError("");
+    setIsLoading(true);
+    
+    try {
+      await login(email(), password());
+      navigate("/dashboard");
+    } catch (err: any) {
+      setError(err.message || "Login failed");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleForgotPassClick = (e: Event) => {
@@ -73,24 +84,14 @@ export default function Login() {
         <div class="w-1/2 p-8">
           <h2 class="text-3xl font-bold text-center mb-4 dark:text-white">Sign In</h2>
           <p class="text-center text-sm text-blue-600 dark:text-blue-300 mb-6">
-            Access your asset management dashboard
+            Access your Batik Kita account
           </p>
 
-          <div class="flex mb-4 justify-center gap-4">
-            {["user", "admin"].map((type) => (
-              <button
-                type="button"
-                class={`px-4 py-2 rounded-lg border transition-all duration-300 ${
-                  role() === type
-                    ? "bg-blue-700 bg-opacity-80 text-white scale-110 shadow-lg shadow-blue-500/50"
-                    : "bg-transparent border-blue-700 text-blue-700 hover:bg-blue-700/10"
-                }`}
-                onClick={() => setRole(type as "admin" | "user")}
-              >
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </button>
-            ))}
-          </div>
+          {error() && (
+            <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              {error()}
+            </div>
+          )}
 
           <form class="space-y-4" onSubmit={handleSubmit}>
             <div class="transition duration-300 hover:scale-105">
@@ -134,9 +135,10 @@ export default function Login() {
 
             <button
               type="submit"
-              class="w-full text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-all duration-300 hover:scale-105"
+              disabled={loading() || isLoading()}
+              class="w-full text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Sign In →
+              {loading() || isLoading() ? "Signing In..." : "Sign In →"}
             </button>
           </form>
 

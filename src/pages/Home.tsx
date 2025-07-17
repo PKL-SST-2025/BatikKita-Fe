@@ -1,6 +1,7 @@
 import { createSignal, onMount, For, Show, } from "solid-js";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import FavoriteButton from "../components/FavoriteButton";
 
 const produkUnggulan = [
   { 
@@ -384,6 +385,11 @@ export default function Home() {
                       <span class="absolute top-4 left-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-bold px-3 py-1 rounded-full">
                         {product.tag}
                       </span>
+                      
+                      {/* Favorite Button */}
+                      <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <FavoriteButton product={product} size="md" />
+                      </div>
                     </div>
                     
                     <div class="p-6">
