@@ -290,57 +290,71 @@ export default function Profile() {
             </div>
           </Show>
 
-          <Show when={activeTab() === "settings"}>
-            <div class="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
-              <h2 class="text-2xl font-bold mb-6 text-slate-800 dark:text-slate-100">Pengaturan Akun</h2>
-              <div class="space-y-4">
-                <div class="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                  <div class="flex items-center gap-3">
-                    <span class="text-2xl">🔔</span>
-                    <div>
-                      <p class="font-semibold text-slate-800 dark:text-slate-100">Notifikasi</p>
-                      <p class="text-sm text-slate-600 dark:text-slate-400">Kelola preferensi notifikasi</p>
-                    </div>
-                  </div>
-                  <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                  </svg>
-                </div>
-                <div class="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                  <div class="flex items-center gap-3">
-                    <span class="text-2xl">🔐</span>
-                    <div>
-                      <p class="font-semibold text-slate-800 dark:text-slate-100">Keamanan</p>
-                      <p class="text-sm text-slate-600 dark:text-slate-400">Password dan autentikasi</p>
-                    </div>
-                  </div>
-                  <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                  </svg>
-                </div>
-                <div class="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                  <div class="flex items-center gap-3">
-                    <span class="text-2xl">🎨</span>
-                    <div>
-                      <p class="font-semibold text-slate-800 dark:text-slate-100">Tampilan</p>
-                      <p class="text-sm text-slate-600 dark:text-slate-400">Tema dan preferensi visual</p>
-                    </div>
-                  </div>
-                  <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                  </svg>
-                </div>
-                <Show when={profilePhoto()}>
-                  <button
-                    onClick={handleRemovePhoto}
-                    class="w-full mt-6 px-4 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors flex items-center justify-center gap-2 border border-red-200 dark:border-red-800"
-                  >
-                    <span>🗑️</span> Hapus Foto Profil
-                  </button>
-                </Show>
-              </div>
-            </div>
-          </Show>
+<Show when={activeTab() === "settings"}>
+  <div class="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
+    <h2 class="text-2xl font-bold mb-6 text-slate-800 dark:text-slate-100">Pengaturan Akun</h2>
+    <div class="space-y-4">
+      {/* Tambahkan href ke setiap link pengaturan */}
+      <a 
+        href="/notifications"
+        class="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-600"
+      >
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">🔔</span>
+          <div>
+            <p class="font-semibold text-slate-800 dark:text-slate-100">Notifikasi</p>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Kelola preferensi notifikasi</p>
+          </div>
+        </div>
+        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </a>
+
+      <a 
+        href="/security"
+        class="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-600"
+      >
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">🔐</span>
+          <div>
+            <p class="font-semibold text-slate-800 dark:text-slate-100">Keamanan</p>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Password dan autentikasi</p>
+          </div>
+        </div>
+        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </a>
+
+      <a 
+        href="/appearance"
+        class="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-600"
+      >
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">🎨</span>
+          <div>
+            <p class="font-semibold text-slate-800 dark:text-slate-100">Tampilan</p>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Tema dan preferensi visual</p>
+          </div>
+        </div>
+        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </a>
+
+      {/* Tombol hapus foto profil tetap di bawah */}
+      <Show when={profilePhoto()}>
+        <button
+          onClick={handleRemovePhoto}
+          class="w-full mt-6 px-4 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors flex items-center justify-center gap-2 border border-red-200 dark:border-red-800"
+        >
+          <span>🗑️</span> Hapus Foto Profil
+        </button>
+      </Show>
+    </div>
+  </div>
+</Show>
         </div>
       </div>
       <Footer />

@@ -14,6 +14,10 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
 
+import Notifications from "./pages/Notifications";
+import Security from "./pages/Security";
+import Appearance from "./pages/Appearance";
+
 import SplashLogo from "./components/SplashLogo";
 import ProtectedRoute from "./components/ProtectedRoute"; 
 import { CartProvider } from "./store/CartContext";
@@ -46,12 +50,40 @@ export default function App() {
             <Route path="/about" component={About} />
             <Route path="/contact" component={Contact} />
             
-            {/* Protected user route */}
+            {/* Protected user routes */}
             <Route
               path="/profile"
               component={() => (
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              )}
+            />
+
+            {/* Protected profile settings routes */}
+            <Route
+              path="/notifications"
+              component={() => (
+                <ProtectedRoute>
+                  <Notifications />
+                </ProtectedRoute>
+              )}
+            />
+
+            <Route
+              path="/security"
+              component={() => (
+                <ProtectedRoute>
+                  <Security />
+                </ProtectedRoute>
+              )}
+            />
+
+            <Route
+              path="/appearance"
+              component={() => (
+                <ProtectedRoute>
+                  <Appearance />
                 </ProtectedRoute>
               )}
             />

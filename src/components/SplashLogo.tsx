@@ -4,7 +4,7 @@ export default function SplashLogo() {
   const [visible, setVisible] = createSignal(true);
 
   onMount(() => {
-    setTimeout(() => setVisible(false), 1800); // durasi splash 1.8s
+    setTimeout(() => setVisible(false), 1800);
   });
 
   return visible() ? (
