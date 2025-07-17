@@ -5,7 +5,7 @@ export default function Navbar() {
   const [showNavbar, setShowNavbar] = createSignal(true);
   const [menuOpen, setMenuOpen] = createSignal(false);
   const [showNotifications, setShowNotifications] = createSignal(false);
-  const [notificationCount, setNotificationCount] = createSignal(3);
+  const [notificationCount] = createSignal(3); // Removed unused setter
   const { user } = useAuth();
   let lastScrollY = 0;
 
@@ -78,8 +78,8 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Simple Notification Dropdown */}
-        <Show when={showNotifications()}>
+        {/* Simple Notification Dropdown - Only show when user is logged in */}
+        <Show when={showNotifications() && user()}>
           <div class="absolute right-6 top-full mt-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-white/30 dark:border-white/10 rounded-2xl shadow-2xl w-80 z-50">
             <div class="p-4 border-b border-gray-200/50 dark:border-gray-700/50">
               <h3 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
@@ -147,32 +147,34 @@ export default function Navbar() {
             </svg>
           </a>
 
-          {/* Notifications - Always visible for testing */}
-          <button
-            onClick={toggleNotifications}
-            class="relative text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition"
-          >
-            <svg
-              class="w-5 h-5 md:w-6 md:h-6"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              viewBox="0 0 24 24"
+          {/* Notifications - Only show when logged in */}
+          <Show when={user()}>
+            <button
+              onClick={toggleNotifications}
+              class="relative text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-              />
-            </svg>
-            
-            {/* Badge */}
-            <Show when={notificationCount() > 0}>
-              <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium animate-pulse">
-                {notificationCount()}
-              </span>
-            </Show>
-          </button>
+              <svg
+                class="w-5 h-5 md:w-6 md:h-6"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                />
+              </svg>
+              
+              {/* Badge */}
+              <Show when={notificationCount() > 0}>
+                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium animate-pulse">
+                  {notificationCount()}
+                </span>
+              </Show>
+            </button>
+          </Show>
 
           {/* Profile */}
           <a

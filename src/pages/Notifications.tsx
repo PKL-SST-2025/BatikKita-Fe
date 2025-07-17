@@ -1,4 +1,4 @@
-import { createSignal, onMount, Show } from "solid-js";
+import { createSignal, onMount, Show, For } from "solid-js";
 import { useAuth } from "../store/AuthContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -190,7 +190,8 @@ export default function Notifications() {
               </div>
 
               <div class="divide-y divide-slate-200 dark:divide-slate-700">
-                {notificationCategories.map((category, index) => (
+                <For each={notificationCategories}>
+                  {(category) => (
                   <div class="p-6 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                     <div class="flex items-center justify-between">
                       <div class="flex items-center gap-4">
@@ -216,7 +217,8 @@ export default function Notifications() {
                       </label>
                     </div>
                   </div>
-                ))}
+                )}
+                </For>
               </div>
 
               <div class="p-6 bg-slate-50 dark:bg-slate-700/50 border-t border-slate-200 dark:border-slate-700">
