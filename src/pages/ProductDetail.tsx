@@ -262,26 +262,22 @@ export default function ProductDetail() {
   };
 
   const handleToggleFavorite = async () => {
-    if (!user()) {
-      setShowLoginPrompt(true);
-      return;
-    }
-
+    // Authentication check disabled for demo
+    // if (!user()) {
+    //   setShowLoginPrompt(true);
+    //   return;
+    // }
+    
     if (!product) return;
 
     try {
       const result = await toggleFavorite(product.id);
       showNotification(result.message);
     } catch (error: any) {
-      if (error.message.includes("login")) {
-        setShowLoginPrompt(true);
-      } else {
-        alert(error.message || "Gagal mengupdate favorit");
-      }
+      console.error('Toggle favorite error:', error);
+      showNotification("Gagal mengupdate favorit");
     }
-  };
-
-  return (
+  };  return (
     <>
       <Navbar />
       <div class="min-h-screen bg-gradient-to-br from-gray-50 to-white pt-20 pb-16">

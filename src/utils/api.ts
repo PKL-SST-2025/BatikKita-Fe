@@ -58,11 +58,41 @@ class ApiClient {
         ...options.headers,
         ...(token && { Authorization: `Bearer ${token}` }),
       },
+      // Use origin-when-cross-origin for better CORS handling
+      referrerPolicy: 'origin-when-cross-origin',
+      // Don't include credentials for simple CORS
+      credentials: 'omit',
+      // Add mode for explicit CORS handling
+      mode: 'cors',
     };
 
     try {
       const response = await fetch(url, config);
-      const data = await response.json();
+      
+      // Check if response has content and is JSON before parsing
+      let data;
+      const contentType = response.headers.get('content-type');
+      const hasJsonContent = contentType && contentType.includes('application/json');
+      
+      if (hasJsonContent) {
+        try {
+          data = await response.json();
+        } catch (jsonError) {
+          // If JSON parsing fails, create a generic error response
+          data = {
+            success: false,
+            message: `Failed to parse response: ${response.status} ${response.statusText}`,
+            data: null
+          };
+        }
+      } else {
+        // For non-JSON responses (like 404 HTML pages), create a generic error response
+        data = {
+          success: false,
+          message: response.status === 404 ? 'Resource not found' : `HTTP ${response.status}: ${response.statusText}`,
+          data: null
+        };
+      }
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -70,7 +100,7 @@ class ApiClient {
           removeAuthToken();
           window.location.href = '/login';
         }
-        throw new Error(data.message || 'API request failed');
+        throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
       }
 
       return data;

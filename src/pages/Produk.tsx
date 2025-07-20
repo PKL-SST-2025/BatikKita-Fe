@@ -32,8 +32,22 @@ export default function Produk() {
   const [showLoginPrompt, setShowLoginPrompt] = createSignal(false);
 
   const { toggleFavorite, isFavorite } = useFavorites();
-  const { user } = useAuth();
+  const auth = useAuth();
   const { addToCart, loading: cartLoading } = useCart();
+
+  // Notification function
+  const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
+    const notification = document.createElement('div');
+    const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+    notification.className = `fixed top-24 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    setTimeout(() => {
+      notification.style.transform = 'translateX(100%)';
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
+  };
 
   const categories = [
     { value: "all", label: "Semua Produk", icon: "🎨" },
@@ -56,18 +70,22 @@ export default function Produk() {
 
   // Handle favorite toggle
   const handleToggleFavorite = async (product: any) => {
-    if (!user()) {
+    // Check authentication first
+    if (!auth.isAuthenticated()) {
       setShowLoginPrompt(true);
       return;
     }
 
     try {
-      await toggleFavorite(product.id);
+      const result = await toggleFavorite(product.id);
+      // Show notification
+      showNotification(result.message);
     } catch (error: any) {
-      if (error.message.includes("login")) {
+      console.error('Toggle favorite error:', error);
+      if (error.message.includes('login')) {
         setShowLoginPrompt(true);
       } else {
-        alert(error.message || "Gagal mengupdate favorit");
+        showNotification('Gagal mengupdate favorit', 'error');
       }
     }
   };

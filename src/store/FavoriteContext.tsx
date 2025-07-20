@@ -49,13 +49,18 @@ export function FavoriteProvider(props: { children: JSX.Element }) {
   };
 
   const addToFavorites = async (productId: number) => {
+    console.log('addToFavorites called', { isAuthenticated: auth.isAuthenticated(), productId });
+    
     if (!auth.isAuthenticated()) {
+      console.log('Not authenticated, throwing error');
       throw new Error('Please login to add favorites');
     }
 
     try {
       setLoading(true);
+      console.log('Calling FavoriteService.addToFavorites');
       const response = await FavoriteService.addToFavorites(productId);
+      console.log('FavoriteService response:', response);
       if (response.success) {
         await refreshFavorites();
       } else {
@@ -98,10 +103,10 @@ export function FavoriteProvider(props: { children: JSX.Element }) {
     try {
       if (isCurrentlyFavorite) {
         await removeFromFavorites(productId);
-        return { isFavorite: false, message: 'Removed from favorites' };
+        return { isFavorite: false, message: 'Produk dihapus dari favorit' };
       } else {
         await addToFavorites(productId);
-        return { isFavorite: true, message: 'Added to favorites' };
+        return { isFavorite: true, message: 'Produk ditambahkan ke favorit' };
       }
     } catch (error) {
       throw error;

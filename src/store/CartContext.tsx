@@ -21,14 +21,6 @@ export function CartProvider(props: { children: JSX.Element }) {
   const [cartItems, setCartItems] = createSignal<CartItem[]>([]);
   const [loading, setLoading] = createSignal(false);
 
-  // Load cart on mount
-  const initializeCart = async () => {
-    await refreshCart();
-  };
-
-  // Initialize cart
-  initializeCart();
-
   const refreshCart = async () => {
     try {
       setLoading(true);
@@ -42,6 +34,14 @@ export function CartProvider(props: { children: JSX.Element }) {
       setLoading(false);
     }
   };
+
+  // Load cart on mount
+  const initializeCart = async () => {
+    await refreshCart();
+  };
+
+  // Initialize cart
+  initializeCart();
 
   const addToCart = async (productId: number, quantity: number = 1) => {
     try {
