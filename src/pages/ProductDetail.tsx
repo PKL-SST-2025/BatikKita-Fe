@@ -1,5 +1,5 @@
 import { createSignal, createEffect, Show, For } from "solid-js";
-import { useParams } from "@solidjs/router";
+import { useParams, useNavigate } from "@solidjs/router";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useCart } from "../store/CartContext";
@@ -157,10 +157,11 @@ export default function ProductDetail() {
   const [showLoginPrompt, setShowLoginPrompt] = createSignal(false);
   
   const { id } = useParams();
+  const navigate = useNavigate();
   const product = products.find((p) => p.id === parseInt(id));
   const { addToCart } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
-  const { user } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   const allImages = product ? [product.image, ...product.additionalImages] : [];
   const [selectedImage, setSelectedImage] = createSignal(allImages[0] || "");
@@ -205,12 +206,18 @@ export default function ProductDetail() {
   }
 
   const handleAddToCart = async () => {
+    // Check authentication first
+    if (!isAuthenticated()) {
+      setShowLoginPrompt(true);
+      return;
+    }
+    
     if (!selectedSize()) {
-      alert("Silakan pilih ukuran terlebih dahulu");
+      showNotification("❗ Silakan pilih ukuran terlebih dahulu");
       return;
     }
     if (!selectedColor()) {
-      alert("Silakan pilih warna terlebih dahulu");
+      showNotification("❗ Silakan pilih warna terlebih dahulu");
       return;
     }
     
@@ -225,9 +232,41 @@ export default function ProductDetail() {
       }
       
       // Show notification
-      showNotification("Produk berhasil ditambahkan ke keranjang! 🛒");
+      showNotification("🛒 Produk berhasil ditambahkan ke keranjang!");
     } catch (error: any) {
-      alert(error.message || "Gagal menambahkan ke keranjang");
+      showNotification("❌ " + (error.message || "Gagal menambahkan ke keranjang"));
+    }
+  };
+
+  const handleBuyNow = async () => {
+    // Check authentication first
+    if (!isAuthenticated()) {
+      setShowLoginPrompt(true);
+      return;
+    }
+    
+    if (!selectedSize()) {
+      showNotification("❗ Silakan pilih ukuran terlebih dahulu");
+      return;
+    }
+    if (!selectedColor()) {
+      showNotification("❗ Silakan pilih warna terlebih dahulu");
+      return;
+    }
+    
+    try {
+      // Add to cart first
+      await addToCart(product.id, quantity());
+      
+      // Show loading notification
+      showNotification("🛒 Menambahkan ke keranjang...");
+      
+      // Navigate to cart after a short delay
+      setTimeout(() => {
+        navigate("/cart");
+      }, 1000);
+    } catch (error: any) {
+      showNotification("❌ " + (error.message || "Gagal menambahkan ke keranjang"));
     }
   };
 
@@ -262,11 +301,11 @@ export default function ProductDetail() {
   };
 
   const handleToggleFavorite = async () => {
-    // Authentication check disabled for demo
-    // if (!user()) {
-    //   setShowLoginPrompt(true);
-    //   return;
-    // }
+    // Check authentication first
+    if (!isAuthenticated()) {
+      setShowLoginPrompt(true);
+      return;
+    }
     
     if (!product) return;
 
@@ -275,7 +314,7 @@ export default function ProductDetail() {
       showNotification(result.message);
     } catch (error: any) {
       console.error('Toggle favorite error:', error);
-      showNotification("Gagal mengupdate favorit");
+      showNotification("❌ Gagal mengupdate favorit");
     }
   };  return (
     <>
@@ -569,7 +608,10 @@ export default function ProductDetail() {
                 </div>
 
                 {/* Buy Now */}
-                <button class="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300">
+                <button 
+                  onClick={handleBuyNow}
+                  class="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300"
+                >
                   Beli Sekarang
                 </button>
               </div>
@@ -952,10 +994,10 @@ export default function ProductDetail() {
         <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div class="bg-white rounded-xl max-w-md w-full p-6">
             <div class="text-center">
-              <div class="text-4xl mb-4">❤️</div>
+              <div class="text-4xl mb-4">🔐</div>
               <h3 class="text-xl font-bold mb-2">Login Diperlukan</h3>
               <p class="text-gray-600 mb-6">
-                Silakan login terlebih dahulu untuk menambahkan produk ke favorit Anda.
+                Silakan login terlebih dahulu untuk menambahkan produk ke keranjang atau favorit Anda.
               </p>
               <div class="flex gap-3">
                 <button
