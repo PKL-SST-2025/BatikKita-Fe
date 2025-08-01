@@ -71,9 +71,9 @@ export default function FavoriteButton(props: FavoriteButtonProps) {
   };
 
   const sizeClasses = {
-    sm: "w-8 h-8 text-lg",
-    md: "w-10 h-10 text-xl",
-    lg: "w-12 h-12 text-2xl"
+    sm: "w-8 h-8 p-2",
+    md: "w-10 h-10 p-2.5",
+    lg: "w-12 h-12 p-3"
   };
 
   const size = props.size || "md";
@@ -84,15 +84,16 @@ export default function FavoriteButton(props: FavoriteButtonProps) {
         onClick={handleToggleFavorite}
         class={`${sizeClasses[size]} ${props.className || ""} 
           relative flex items-center justify-center rounded-full 
-          bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm
-          shadow-lg hover:shadow-xl 
-          transition-all duration-300 transform hover:scale-110
+          transition-all duration-300 group hover:scale-110
           ${isAnimating() ? "animate-pulse scale-125" : ""}
-          ${isFavorite(getProductId()) ? "text-red-500" : "text-gray-400 hover:text-red-400"}`}
+          ${isFavorite(getProductId()) 
+            ? "bg-red-50 text-red-500" 
+            : "bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-500"
+          }`}
         title={isFavorite(getProductId()) ? "Hapus dari favorit" : "Tambah ke favorit"}
       >
         <svg 
-          class={`w-5 h-5 transition-all duration-300 ${
+          class={`w-5 h-5 transition-colors duration-300 ${
             isFavorite(getProductId()) ? "fill-current" : "fill-none"
           }`} 
           stroke="currentColor" 

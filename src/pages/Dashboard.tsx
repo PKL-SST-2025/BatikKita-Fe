@@ -355,7 +355,7 @@ const Dashboard: Component = () => {
           </div>
 
           {/* Enhanced Quick Actions */}
-          <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
               <div class="flex items-center justify-between mb-4">
                 <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-2xl border border-white/30">
@@ -389,6 +389,25 @@ const Dashboard: Component = () => {
                 <span>8/12 target tercapai</span>
               </div>
             </div>
+
+            {/* Admin Chat Card */}
+            <a href="/admin/chat" class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 block">
+              <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-2xl border border-white/30">
+                  💬
+                </div>
+                <div class="flex items-center gap-1">
+                  <span class="w-2 h-2 bg-red-400 rounded-full animate-ping"></span>
+                  <span class="text-xs">3</span>
+                </div>
+              </div>
+              <h3 class="font-semibold mb-1">Admin Chat</h3>
+              <p class="text-sm opacity-90">Kelola chat dengan pelanggan</p>
+              <div class="mt-3 flex items-center gap-2 text-xs">
+                <div class="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                <span>3 pesan belum dibalas</span>
+              </div>
+            </a>
             
             <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
               <div class="flex items-center justify-between mb-4">

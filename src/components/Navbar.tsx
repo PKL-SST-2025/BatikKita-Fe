@@ -2,12 +2,11 @@ import { createSignal, onCleanup, onMount, Show } from "solid-js";
 import { useAuth } from "../store/AuthContext";
 import { useFavorites } from "../store/FavoriteContext";
 import { useCart } from "../store/CartContext";
+import NotificationDropdown from "./NotificationDropdown";
 
 export default function Navbar() {
   const [showNavbar, setShowNavbar] = createSignal(true);
   const [menuOpen, setMenuOpen] = createSignal(false);
-  const [showNotifications, setShowNotifications] = createSignal(false);
-  const [notificationCount] = createSignal(3); // Removed unused setter
   const { user } = useAuth();
   const { favoriteCount } = useFavorites();
   const { getCartCount } = useCart();
@@ -25,12 +24,6 @@ export default function Navbar() {
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen());
-    setShowNotifications(false);
-  };
-
-  const toggleNotifications = () => {
-    setShowNotifications(!showNotifications());
-    setMenuOpen(false);
   };
 
   onMount(() => {
@@ -83,86 +76,19 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Simple Notification Dropdown - Only show when user is logged in */}
-        <Show when={showNotifications() && user()}>
-          <div class="absolute right-6 top-full mt-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-white/30 dark:border-white/10 rounded-2xl shadow-2xl w-80 z-50">
-            <div class="p-4 border-b border-gray-200/50 dark:border-gray-700/50">
-              <h3 class="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
-                🔔 Notifikasi
-              </h3>
-            </div>
-            <div class="p-4">
-              <div class="space-y-3">
-                <div class="flex items-start gap-3 p-3 bg-blue-50/50 dark:bg-blue-900/20 rounded-lg">
-                  <span class="text-xl">🛒</span>
-                  <div>
-                    <h4 class="font-medium text-gray-800 dark:text-white">Pesanan Baru</h4>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Ada pesanan baru dari Dewi Sartika</p>
-                    <span class="text-xs text-gray-500">2 menit lalu</span>
-                  </div>
-                </div>
-                <div class="flex items-start gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">
-                  <span class="text-xl">⚠️</span>
-                  <div>
-                    <h4 class="font-medium text-gray-800 dark:text-white">Stok Rendah</h4>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Batik Truntum stok tersisa 3 buah</p>
-                    <span class="text-xs text-gray-500">1 jam lalu</span>
-                  </div>
-                </div>
-                <div class="flex items-start gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">
-                  <span class="text-xl">✅</span>
-                  <div>
-                    <h4 class="font-medium text-gray-800 dark:text-white">Pembayaran Diterima</h4>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Pembayaran order #ORD001 berhasil</p>
-                    <span class="text-xs text-gray-500">3 jam lalu</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="p-4 border-t border-gray-200/50 dark:border-gray-700/50">
-              <a
-                href="/notifications"
-                class="block w-full text-center text-blue-600 dark:text-blue-400 hover:text-blue-800 text-sm py-2"
-              >
-                Lihat semua notifikasi →
-              </a>
-            </div>
-          </div>
-        </Show>
-
         {/* Icon + Toggle */}
-        <div class="flex items-center space-x-3">
-          {/* Favorites - Only show when logged in */}
+        <div class="flex items-center space-x-2">
+          {/* Notification Dropdown - Only show when user is logged in */}
           <Show when={user()}>
-            <a
-              href="/favorites"
-              class="relative text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 transition"
-            >
-              <svg
-                class="w-5 h-5 md:w-6 md:h-6"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
-              </svg>
-              <Show when={favoriteCount() > 0}>
-                <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                  {favoriteCount()}
-                </span>
-              </Show>
-            </a>
+            <div class="p-1">
+              <NotificationDropdown />
+            </div>
           </Show>
 
           {/* Cart */}
           <a
             href="/cart"
-            class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition relative"
+            class="relative p-1 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
           >
             <svg
               class="w-5 h-5 md:w-6 md:h-6"
@@ -178,17 +104,17 @@ export default function Navbar() {
               />
             </svg>
             <Show when={getCartCount() > 0}>
-              <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {getCartCount()}
+              <span class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold min-w-[16px] transform translate-x-1 -translate-y-1">
+                {getCartCount() > 9 ? '9+' : getCartCount()}
               </span>
             </Show>
           </a>
 
-          {/* Notifications - Only show when logged in */}
+          {/* Favorites - Only show when logged in */}
           <Show when={user()}>
-            <button
-              onClick={toggleNotifications}
-              class="relative text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition"
+            <a
+              href="/favorites"
+              class="relative p-1 text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 transition-colors duration-200"
             >
               <svg
                 class="w-5 h-5 md:w-6 md:h-6"
@@ -200,23 +126,21 @@ export default function Navbar() {
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                 />
               </svg>
-              
-              {/* Badge */}
-              <Show when={notificationCount() > 0}>
-                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium animate-pulse">
-                  {notificationCount()}
+              <Show when={favoriteCount() > 0}>
+                <span class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold min-w-[16px] transform translate-x-1 -translate-y-1">
+                  {favoriteCount() > 9 ? '9+' : favoriteCount()}
                 </span>
               </Show>
-            </button>
+            </a>
           </Show>
 
           {/* Profile */}
           <a
             href="/profile"
-            class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition"
+            class="p-1 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
           >
             <svg
               class="w-5 h-5 md:w-6 md:h-6"
@@ -237,16 +161,16 @@ export default function Navbar() {
           <button
             onClick={toggleMenu}
             type="button"
-            class="inline-flex items-center p-1 text-sm text-gray-500 dark:text-gray-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="p-1 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-200"
             aria-controls="mobile-menu"
             aria-expanded={menuOpen()}
           >
             <span class="sr-only">Toggle menu</span>
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path
-                fill-rule="evenodd"
-                d="M3 5h14a1 1 0 010 2H3a1 1 0 010-2zm0 6h14a1 1 0 010 2H3a1 1 0 010-2zm0 6h14a1 1 0 010 2H3a1 1 0 010-2z"
-                clip-rule="evenodd"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
               />
             </svg>
           </button>

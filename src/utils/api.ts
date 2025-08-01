@@ -1,6 +1,8 @@
 // API Configuration
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
+console.log('API Base URL:', API_BASE_URL);
+
 // API Response Types
 export interface ApiResponse<T> {
   success: boolean;
@@ -60,8 +62,8 @@ class ApiClient {
       },
       // Use origin-when-cross-origin for better CORS handling
       referrerPolicy: 'origin-when-cross-origin',
-      // Don't include credentials for simple CORS
-      credentials: 'omit',
+      // Include credentials for CORS
+      credentials: 'include',
       // Add mode for explicit CORS handling
       mode: 'cors',
     };
