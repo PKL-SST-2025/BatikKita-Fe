@@ -79,7 +79,7 @@ export class NotificationService {
     if (filters?.offset) params.append('offset', filters.offset.toString());
 
     const queryString = params.toString();
-    const url = queryString ? `/notifications?${queryString}` : '/notifications';
+    const url = queryString ? `/api/auth/notifications?${queryString}` : '/api/auth/notifications';
     
     return apiClient.get<Notification[]>(url);
   }

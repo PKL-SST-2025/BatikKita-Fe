@@ -39,7 +39,8 @@ export default function Login() {
     
     try {
       await login(email(), password());
-      // Success notification will be handled by AuthContext
+      // Success - redirect to products page
+      navigate("/produk");
     } catch (err: any) {
       setError(err.message || "Login failed");
       // Shake animation on error

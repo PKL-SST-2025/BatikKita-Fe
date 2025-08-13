@@ -98,7 +98,35 @@ export class ProductService {
       });
     }
 
-    return apiClient.getPaginated<Product>('/products', params);
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        searchParams.append(key, value.toString());
+      });
+    }
+    
+    const url = searchParams.toString() 
+      ? `/products?${searchParams.toString()}`
+      : '/products';
+    
+    // Backend now returns ApiResponse format
+    const response = await apiClient.get<Product[]>(url);
+    
+    // Transform the response to match PaginatedResponse format
+    const products = response.data || [];
+    return {
+      data: products,
+      pagination: {
+        page: 1,
+        per_page: products.length,
+        total: products.length,
+        total_pages: 1,
+        has_next: false,
+        has_prev: false
+      },
+      success: response.success,
+      message: response.message
+    };
   }
 
   // Get single product by ID

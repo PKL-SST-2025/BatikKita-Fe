@@ -40,27 +40,27 @@ export interface UpdateCartRequest {
 export class CartService {
   // Get user's cart
   static async getCart(): Promise<ApiResponse<CartSummary>> {
-    return apiClient.get<CartSummary>('/cart');
+    return apiClient.get<CartSummary>('/auth/cart');
   }
 
   // Add item to cart
   static async addToCart(item: AddToCartRequest): Promise<ApiResponse<CartItem>> {
-    return apiClient.post<CartItem>('/cart', item);
+    return apiClient.post<CartItem>('/auth/cart/items', item);
   }
 
   // Update cart item quantity
   static async updateCartItem(itemId: number, data: UpdateCartRequest): Promise<ApiResponse<CartItem>> {
-    return apiClient.put<CartItem>(`/cart/${itemId}`, data);
+    return apiClient.put<CartItem>(`/auth/cart/items/${itemId}`, data);
   }
 
   // Remove item from cart
   static async removeFromCart(itemId: number): Promise<ApiResponse<null>> {
-    return apiClient.delete<null>(`/cart/${itemId}`);
+    return apiClient.delete<null>(`/auth/cart/items/${itemId}`);
   }
 
   // Clear entire cart
   static async clearCart(): Promise<ApiResponse<null>> {
-    return apiClient.delete<null>('/cart');
+    return apiClient.delete<null>('/auth/cart/clear');
   }
 
   // Get cart item count

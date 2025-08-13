@@ -70,7 +70,7 @@ export interface OrderFilters {
 export class OrderService {
   // Create new order (checkout)
   static async checkout(checkoutData: CheckoutRequest): Promise<ApiResponse<Order>> {
-    return apiClient.post<Order>('/checkout', checkoutData);
+  return apiClient.post<Order>('/auth/checkout', checkoutData);
   }
 
   // Get user's orders
@@ -85,22 +85,22 @@ export class OrderService {
       });
     }
 
-    return apiClient.getPaginated<Order>('/orders', params);
+  return apiClient.getPaginated<Order>('/auth/orders', params);
   }
 
   // Get single order by ID
   static async getOrder(orderId: number): Promise<ApiResponse<Order>> {
-    return apiClient.get<Order>(`/orders/${orderId}`);
+  return apiClient.get<Order>(`/auth/orders/${orderId}`);
   }
 
   // Update order status (Admin only)
   static async updateOrderStatus(orderId: number, status: string): Promise<ApiResponse<Order>> {
-    return apiClient.put<Order>(`/orders/${orderId}/status`, { status });
+  return apiClient.put<Order>(`/auth/orders/${orderId}/status`, { status });
   }
 
   // Get order by order number
   static async getOrderByNumber(orderNumber: string): Promise<ApiResponse<Order>> {
-    return apiClient.get<Order>(`/orders/number/${orderNumber}`);
+  return apiClient.get<Order>(`/auth/orders/number/${orderNumber}`);
   }
 }
 

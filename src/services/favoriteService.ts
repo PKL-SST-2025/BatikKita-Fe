@@ -26,17 +26,17 @@ export interface AddToFavoritesRequest {
 export class FavoriteService {
   // Get user's favorite products
   static async getFavorites(): Promise<ApiResponse<FavoriteProduct[]>> {
-    return apiClient.get<FavoriteProduct[]>('/favorites');
+    return apiClient.get<FavoriteProduct[]>('/auth/favorites');
   }
 
   // Add product to favorites
   static async addToFavorites(productId: number): Promise<ApiResponse<FavoriteProduct>> {
-    return apiClient.post<FavoriteProduct>('/favorites', { product_id: productId });
+    return apiClient.post<FavoriteProduct>('/auth/favorites', { product_id: productId });
   }
 
   // Remove product from favorites
   static async removeFromFavorites(productId: number): Promise<ApiResponse<null>> {
-    return apiClient.delete<null>(`/favorites/${productId}`);
+    return apiClient.delete<null>(`/auth/favorites/${productId}`);
   }
 
   // Check if product is in favorites

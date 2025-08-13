@@ -39,7 +39,11 @@ export interface User {
 export class AuthService {
   // Login
   static async login(credentials: LoginRequest): Promise<ApiResponse<AuthResponse>> {
-    return apiClient.post<AuthResponse>('/auth/login', credentials);
+    const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
+    if (response.success && response.data?.token) {
+      localStorage.setItem('auth_token', response.data.token);
+    }
+    return response;
   }
 
   // Register
@@ -54,12 +58,12 @@ export class AuthService {
 
   // Get current user profile
   static async getProfile(): Promise<ApiResponse<User>> {
-    return apiClient.get<User>('/user/profile');
+    return apiClient.get<User>('/auth/user/profile');
   }
 
   // Update user profile
   static async updateProfile(userData: Partial<User>): Promise<ApiResponse<User>> {
-    return apiClient.put<User>('/user/profile', userData);
+    return apiClient.put<User>('/auth/user/profile', userData);
   }
 
   // Refresh token
